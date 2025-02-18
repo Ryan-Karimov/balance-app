@@ -12,7 +12,6 @@ router.post("/", async (req, res) => {
 
   const transaction = await sequelize.transaction();
   try {
-    // Блокировка строки для предотвращения конкурентного доступа
     const user = await User.findOne({
       where: { id: userId },
       lock: transaction.LOCK.UPDATE,
@@ -24,7 +23,6 @@ router.post("/", async (req, res) => {
       return res.status(404).json({ error: "Пользователь не найден" });
     }
 
-    // Проверка, что баланс не станет отрицательным
     if (amount < 0 && user.balance + amount < 0) {
       await transaction.rollback();
       return res.status(400).json({ error: "Недостаточно средств на балансе" });
